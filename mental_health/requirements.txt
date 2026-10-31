@@ -1,0 +1,4 @@
+# Use Python 3.13; the saved model was created with scikit-learn 1.6.1.
+Django==6.1.2
+pandas>=2.2,<4
+scikit-learn==1.6.1

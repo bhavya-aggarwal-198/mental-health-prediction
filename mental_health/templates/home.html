@@ -1,0 +1,176 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f6f8f4">
+    <title>Mindful — Mental health insights</title>
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+</head>
+<body>
+    <div class="page-shell">
+        <header class="topbar">
+            <a class="brand" href="/" aria-label="Mindful home">
+                <span class="brand-mark" aria-hidden="true">
+                    <svg viewBox="0 0 32 32" fill="none">
+                        <path d="M16 26s-10-5.8-10-13.2A5.3 5.3 0 0 1 16 9.6a5.3 5.3 0 0 1 10 3.2C26 20.2 16 26 16 26Z" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M9.5 16h4l2-4 3.2 8 2-4h2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+                <span>mindful<span class="brand-period">.</span></span>
+            </a>
+            <span class="topbar-note"><span class="status-dot"></span> A little check-in for you</span>
+            <details class="project-info">
+                <summary aria-label="About this project" title="About this project">i</summary>
+                <div class="info-popover">
+                    <span class="section-kicker">ABOUT THIS PROJECT</span>
+                    <p><strong>Created by Bhavya Aggarwal</strong></p>
+                    <p>Built with Python, Django, HTML, CSS, JavaScript, GSAP, and scikit-learn.</p>
+                </div>
+            </details>
+        </header>
+
+        <main>
+            <section class="hero" aria-labelledby="page-title">
+                <div class="hero-copy">
+                    <span class="eyebrow"><span class="eyebrow-line"></span> YOUR WELLBEING, IN FOCUS</span>
+                    <h1 id="page-title">Make space for<br> <span>how you feel.</span></h1>
+                    <p class="hero-description">
+                        A few details about your daily routine can offer a fresh perspective.
+                        Take a breath, check in, and see what the model says.
+                    </p>
+                    <div class="gentle-note">
+                        <span class="note-icon" aria-hidden="true">✳</span>
+                        <span>There are no right or wrong answers. Just your answers.</span>
+                    </div>
+                </div>
+
+                <aside class="hero-art" aria-label="A gentle reminder to pause and reflect">
+                    <div class="art-orbit orbit-one"></div>
+                    <div class="art-orbit orbit-two"></div>
+                    <div class="art-sun"></div>
+                    <div class="art-leaf leaf-one"></div>
+                    <div class="art-leaf leaf-two"></div>
+                    <div class="art-card">
+                        <span class="art-card-label">A MOMENT FOR YOU</span>
+                        <span class="art-card-title">Pause.<br>Breathe.<br>Begin again.</span>
+                        <span class="breathing-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+                    </div>
+                    <span class="art-sparkle sparkle-one" aria-hidden="true">✳</span>
+                    <span class="art-sparkle sparkle-two" aria-hidden="true">✦</span>
+                </aside>
+            </section>
+
+            <section class="checkin-card" aria-labelledby="checkin-title">
+                <div class="card-heading">
+                    <div>
+                        <span class="section-kicker">YOUR DAILY PICTURE</span>
+                        <h2 id="checkin-title">Let’s check in</h2>
+                        <p>Share a little about your habits and how you’ve been feeling.</p>
+                    </div>
+                    <span class="time-chip"><span aria-hidden="true">◷</span> ABOUT 2 MIN</span>
+                </div>
+
+                {% if model_error %}
+                    <div class="notice notice-error" role="alert">
+                        <span class="notice-icon" aria-hidden="true">!</span>
+                        <p>{{ model_error }}</p>
+                    </div>
+                {% endif %}
+
+                {% if prediction %}
+                    <div class="score-card" role="status" data-new-result>
+                        <span class="score-eyebrow">YOUR WELLNESS SCORE</span>
+                        {% if prediction_percent != None %}
+                            <svg
+                                class="score-gauge"
+                                viewBox="0 0 320 220"
+                                role="img"
+                                aria-label="Estimated wellness score {{ prediction }} out of 10"
+                            >
+                                <defs>
+                                    <linearGradient id="score-gradient" x1="0" y1="1" x2="1" y2="0">
+                                        <stop offset="0%" stop-color="#b4d7b5"/>
+                                        <stop offset="100%" stop-color="#e7d7a4"/>
+                                    </linearGradient>
+                                </defs>
+                                <path
+                                    class="gauge-track"
+                                    d="M 35 170 A 125 125 0 0 1 285 170"
+                                />
+                                <path
+                                    class="gauge-progress"
+                                    d="M 35 170 A 125 125 0 0 1 285 170"
+                                    data-score="{{ prediction_percent }}"
+                                />
+                                <circle class="gauge-marker" cx="35" cy="170" r="7"/>
+                                <text
+                                    class="gauge-value"
+                                    x="160"
+                                    y="148"
+                                    data-score="{{ prediction }}"
+                                >{{ prediction|floatformat:1 }}</text>
+                                <text class="gauge-scale" x="160" y="174">OUT OF 10</text>
+                            </svg>
+                        {% else %}
+                            <p class="score-text-only">{{ prediction|floatformat:1 }} <span>/ 10</span></p>
+                        {% endif %}
+                        <span class="score-pill">WELLNESS ESTIMATE</span>
+                        <p class="score-caption">
+                            A model estimate based on the details you shared. A higher score
+                            indicates higher estimated wellness; it is not a diagnosis.
+                        </p>
+                    </div>
+                {% endif %}
+
+                <form method="post" class="checkin-form">
+                    {% csrf_token %}
+                    {{ form.non_field_errors }}
+                    <div class="form-grid">
+                        {% for field in form %}
+                            <div class="field-wrap{% if field.errors %} field-has-error{% endif %}">
+                                {{ field.label_tag }}
+                                {{ field }}
+                                {% if field.help_text %}<span class="field-help">{{ field.help_text }}</span>{% endif %}
+                                {% for error in field.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="form-footer">
+                        <p><span aria-hidden="true">🔒</span> Your responses are only used to generate this prediction.</p>
+                        <button type="submit" class="submit-button">
+                            <span>Get my insight</span>
+                            <span class="button-arrow" aria-hidden="true">↗</span>
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <footer class="page-footer">
+                <div class="footer-main">
+                    <div>
+                        <h2>Made with care<span class="brand-period">.</span></h2>
+                        <p>Created by Bhavya Aggarwal</p>
+                    </div>
+                    <button
+                        class="portfolio-button"
+                        type="button"
+                        disabled
+                        aria-label="Portfolio link coming soon"
+                        title="Portfolio link coming soon"
+                    >
+                        Portfolio <span aria-hidden="true">↗</span>
+                    </button>
+                </div>
+                <div class="footer-bottom">
+                    <span>© 2026 Bhavya Aggarwal. All rights reserved.</span>
+                    <span>This tool is for reflection and is not a substitute for professional care.</span>
+                </div>
+            </footer>
+        </main>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.14.2/gsap.min.js" defer></script>
+    <script src="{% static 'js/home.js' %}" defer></script>
+</body>
+</html>
